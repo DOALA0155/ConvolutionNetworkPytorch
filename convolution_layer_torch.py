@@ -39,6 +39,7 @@ class NormalConvolution2D(nn.Module):
 
     # layer parameter
     self.weights = nn.Parameter(torch.randn((self.weights_height, self.filters), requires_grad=True))
+    print(self.weights.size())
     self.biases = nn.Parameter(torch.zeros(self.output_size, requires_grad=True))
 
   def forward(self, x):
@@ -51,6 +52,7 @@ class NormalConvolution2D(nn.Module):
 
     # output with matrix multiplication
     output = torch.matmul(x, self.weights)
+    print(output.size())
     output = torch.transpose(output, 1, 2)
 
     output = output.view((-1,) + self.output_size) + self.biases
@@ -59,8 +61,8 @@ class NormalConvolution2D(nn.Module):
 
     return output
 
-image = torch.randn((30, 3, 10, 10))
-conv = NormalConvolution2D(filters=8, kernel_size=(2, 2), input_size=(3, 10, 10))
+image = torch.randn((30, 3, 32, 32))
+conv = NormalConvolution2D(filters=8, kernel_size=(3, 3), input_size=(3, 32, 32))
 out = conv.forward(image)
 
 pool = nn.MaxPool2d(2, 2)
