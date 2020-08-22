@@ -14,6 +14,7 @@ stride: 1
 class NormalConvolution2D(nn.Module):
   def __init__(self, filters, kernel_size, input_size, padding=0, stride=1, activation=torch.sigmoid):
     super().__init__()
+
     # parameters
     self.kernel_size = kernel_size
     self.filters = filters
@@ -38,32 +39,24 @@ class NormalConvolution2D(nn.Module):
     self.weights_height = self.kernel_size[0] * self.kernel_size[1] * channels
 
     # layer parameter
-    self.weights = nn.Parameter(torch.randn((self.weights_height, self.filters), requires_grad=True))
-    print(self.weights.size())
-    self.biases = nn.Parameter(torch.zeros(self.output_size, requires_grad=True))
+    self.weights = nn.Parameter(torch.randn((self.weights_height, self.filters), dtype=torch.float32))
+
+    self.biases = nn.Parameter(torch.zeros(self.output_size,dtype=torch.float32))
 
   def forward(self, x):
-    batch_size = x.size()[0]
-
     # image to column
     unfold = nn.Unfold(kernel_size=self.kernel_size, padding=self.padding, stride=self.stride)
-    x = torch.transpose(unfold(x), 1, 2)
-    print(x.size(), self.weights.size())
+
+    x = unfold(x)
+    x = torch.transpose(x, 1, 2)
 
     # output with matrix multiplication
     output = torch.matmul(x, self.weights)
-    print(output.size())
+
     output = torch.transpose(output, 1, 2)
 
-    output = output.view((-1,) + self.output_size) + self.biases
+    output = torch.add(output.view((-1,) + self.output_size), self.biases)
 
     output = self.activation(output)
 
     return output
-
-image = torch.randn((30, 3, 32, 32))
-conv = NormalConvolution2D(filters=8, kernel_size=(3, 3), input_size=(3, 32, 32))
-out = conv.forward(image)
-
-pool = nn.MaxPool2d(2, 2)
-pool_out = pool(out)

@@ -23,27 +23,8 @@ class ConvolutionModel(nn.Module):
   def forward(self, x):
     x = self.pool(self.conv1.forward(x))
     x = self.pool(self.conv2.forward(x))
-    x = x.view(-1, self.linear_input)
+    x = x.reshape(-1, self.linear_input)
     x = F.relu(self.linear1(x))
     x = F.relu(self.linear2(x))
     x = self.linear3(x)
     return x
-
-# images = torch.randn((10, 3, 32, 32))
-# labels = torch.tensor([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-
-# net = ConvolutionModel()
-# loss_function = nn.CrossEntropyLoss()
-# lr = 0.1
-# optimizer = optim.SGD(net.parameters(), lr=lr)
-
-# for epoch in range(100000):
-#   pred = net.forward(images)
-#   loss = loss_function(pred, labels)
-
-#   if epoch % 10000 == 9999:
-#     print(loss.item())
-
-#   loss.backward()
-#   optimizer.step()
-#   optimizer.zero_grad()
